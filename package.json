@@ -1,0 +1,45 @@
+{
+  "name": "chars",
+  "version": "0.1.0",
+  "description": "OpenCode V2 plugin with omo-style multi-agent role division (chars orchestrator + specialist subagents)",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "index.js",
+    "readme.md"
+  ],
+  "keywords": [
+    "opencode",
+    "opencode-plugin",
+    "agents",
+    "orchestration"
+  ],
+  "scripts": {
+    "build": "bun build src/index.ts --outdir dist --target node --format esm --external @opencode/plugin && tsc -p tsconfig.build.json",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test",
+    "verify": "bun run scripts/verify-v2.ts"
+  },
+  "devDependencies": {
+    "@opencode/plugin": "2.1.4",
+    "bun-types": "latest",
+    "typescript": "^5.9.3"
+  },
+  "peerDependencies": {
+    "@opencode/plugin": ">=2.1.0"
+  },
+  "peerDependenciesMeta": {
+    "@opencode/plugin": {
+      "optional": true
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js"
+}
