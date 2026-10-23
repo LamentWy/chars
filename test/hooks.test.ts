@@ -57,12 +57,12 @@ describe("registerHooks", () => {
     await registerHooks(ctx);
     const system: Array<{ type: "text"; text: string }> = [];
 
-    await context()({ agent: "chars", system });
+    await context()({ agent: "orchestrator", system });
 
     expect(system).toHaveLength(1);
     expect(system[0]?.type).toBe("text");
     expect(system[0]?.text).toContain("Classify the request before acting");
-    expect(system[0]?.text).toContain("chars-planner");
+    expect(system[0]?.text).toContain("planner");
     expect(system[0]?.text).toContain("Never treat a child's completion claim as evidence");
   });
 
@@ -80,8 +80,8 @@ describe("registerHooks", () => {
     const { ctx, tool } = makeContext();
     await registerHooks(ctx);
 
-    expect(() => tool()({ agent: "chars-reviewer", tool: "edit" })).toThrow(
-      "Role chars-reviewer is read-only; route edits to chars-implementer.",
+    expect(() => tool()({ agent: "reviewer", tool: "edit" })).toThrow(
+      "Role reviewer is read-only; route edits to implementer.",
     );
   });
 
@@ -89,18 +89,18 @@ describe("registerHooks", () => {
     const { ctx, tool } = makeContext();
     await registerHooks(ctx);
 
-    expect(() => tool()({ agent: "chars-researcher", tool: "shell" })).toThrow(
-      "Role chars-researcher may not run shell commands",
+    expect(() => tool()({ agent: "researcher", tool: "shell" })).toThrow(
+      "Role researcher may not run shell commands",
     );
-    expect(() => tool()({ agent: "chars-reviewer", tool: "shell" })).not.toThrow();
+    expect(() => tool()({ agent: "reviewer", tool: "shell" })).not.toThrow();
   });
 
   test("allows write tools for implementer and debugger", async () => {
     const { ctx, tool } = makeContext();
     await registerHooks(ctx);
 
-    expect(() => tool()({ agent: "chars-implementer", tool: "edit" })).not.toThrow();
-    expect(() => tool()({ agent: "chars-debugger", tool: "edit" })).not.toThrow();
+    expect(() => tool()({ agent: "implementer", tool: "edit" })).not.toThrow();
+    expect(() => tool()({ agent: "debugger", tool: "edit" })).not.toThrow();
   });
 
   test("returns early when guardReadOnly is false", async () => {
@@ -108,7 +108,7 @@ describe("registerHooks", () => {
     const options: CharsOptions = { guardReadOnly: false };
     await registerHooks(ctx, { options });
 
-    expect(() => tool()({ agent: "chars-reviewer", tool: "edit" })).not.toThrow();
+    expect(() => tool()({ agent: "reviewer", tool: "edit" })).not.toThrow();
   });
 
   test("dispose disposes both registrations", async () => {

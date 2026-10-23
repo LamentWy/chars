@@ -49,14 +49,14 @@ export async function registerCommands(
       name: "chars",
       description: "Start or steer a chars orchestration task",
       async execute({ sessionID, prompt, delivery }) {
-        await context.session.switchAgent({ sessionID, agent: "chars" });
+        await context.session.switchAgent({ sessionID, agent: "orchestrator" });
         const text = prompt.text.trim();
         if (text) {
           await context.session.prompt({ sessionID, text, delivery });
         } else {
           await context.session.synthetic({
             sessionID,
-            text: "chars orchestrator active. Ask for a task, or run /chars-roles to see the team.",
+            text: "orchestrator active. Ask for a task, or run /chars-roles to see the team.",
             resume: false,
           });
         }

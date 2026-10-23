@@ -108,9 +108,10 @@ export async function installSkillFile(directory: string): Promise<string | unde
 }
 
 export async function listInstalledRoleFiles(directory: string, options: CharsOptions = {}): Promise<string[]> {
+  const roleFileNames = new Set(ROLES.map((role) => `${role.id}.md`));
   try {
     const entries = await readdir(resolveAgentsDir(directory, options));
-    return entries.filter((entry) => entry.startsWith("chars") && entry.endsWith(".md")).sort();
+    return entries.filter((entry) => roleFileNames.has(entry)).sort();
   } catch {
     return [];
   }

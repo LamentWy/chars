@@ -35,7 +35,7 @@ export interface CharsOptions {
   install?: boolean;
   /** Override the agents directory (absolute, or relative to the location). */
   rolesDir?: string;
-  /** Per-role model overrides, e.g. { "chars-reviewer": "anthropic/claude-sonnet-4-5#high" }. */
+  /** Per-role model overrides, e.g. { "reviewer": "anthropic/claude-sonnet-4-5#high" }. */
   models?: Record<string, string>;
   /** Also write the routing skill to `.opencode/skills/chars-roles/SKILL.md`. Default true. */
   writeSkillFile?: boolean;
@@ -52,26 +52,26 @@ export interface InstallResult {
 }
 
 export const ROLE_IDS = [
-  "chars",
-  "chars-planner",
-  "chars-implementer",
-  "chars-reviewer",
-  "chars-researcher",
-  "chars-debugger",
-  "chars-writer",
+  "orchestrator",
+  "planner",
+  "implementer",
+  "reviewer",
+  "researcher",
+  "debugger",
+  "writer",
 ] as const;
 
 export type RoleID = (typeof ROLE_IDS)[number];
 
-export const ORCHESTRATOR_ID: RoleID = "chars";
+export const ORCHESTRATOR_ID: RoleID = "orchestrator";
 
 export const READ_ONLY_ROLE_IDS: readonly string[] = [
-  "chars-planner",
-  "chars-reviewer",
-  "chars-researcher",
+  "planner",
+  "reviewer",
+  "researcher",
 ];
 
-export const SHELL_DENIED_ROLE_IDS: readonly string[] = ["chars-researcher"];
+export const SHELL_DENIED_ROLE_IDS: readonly string[] = ["researcher"];
 
 export const SHELL_TOOL_NAMES: readonly string[] = ["shell", "bash"];
 

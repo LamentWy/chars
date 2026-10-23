@@ -78,11 +78,11 @@ describe("registerCommands", () => {
       delivery: "steer",
     });
 
-    expect(switchAgent).toEqual([{ sessionID: "ses_1", agent: "chars" }]);
+    expect(switchAgent).toEqual([{ sessionID: "ses_1", agent: "orchestrator" }]);
     expect(prompt).toHaveLength(0);
     expect(synthetic).toHaveLength(1);
     expect(synthetic[0]).toMatchObject({ sessionID: "ses_1", resume: false });
-    expect(synthetic[0]?.text).toContain("chars orchestrator active");
+    expect(synthetic[0]?.text).toContain("orchestrator active");
   });
 
   test("forwards a non-empty prompt to the session", async () => {
@@ -95,7 +95,7 @@ describe("registerCommands", () => {
       delivery: "queue",
     });
 
-    expect(switchAgent).toEqual([{ sessionID: "ses_1", agent: "chars" }]);
+    expect(switchAgent).toEqual([{ sessionID: "ses_1", agent: "orchestrator" }]);
     expect(prompt).toEqual([{ sessionID: "ses_1", text: "build the parser", delivery: "queue" }]);
     expect(synthetic).toHaveLength(0);
   });

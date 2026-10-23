@@ -72,7 +72,7 @@ function createHarness(overrides: { session?: Record<string, SessionMethod> } = 
 function toolContext(signal: AbortSignal = new AbortController().signal) {
   return {
     sessionID: "ses_parent",
-    agent: "chars",
+    agent: "orchestrator",
     messageID: "msg_parent",
     id: "call_1",
     signal,
@@ -109,8 +109,8 @@ describe("chars_roles", () => {
 
     expect(result.metadata?.roles).toEqual([...ROLE_IDS]);
     for (const id of ROLE_IDS) expect(result.content).toContain(id);
-    expect(result.content).toContain("chars | primary |");
-    expect(result.content).toContain("chars-reviewer | subagent |");
+    expect(result.content).toContain("orchestrator | primary |");
+    expect(result.content).toContain("reviewer | subagent |");
     expect(result.content!.split("\n")).toHaveLength(ROLE_IDS.length);
   });
 
@@ -118,17 +118,17 @@ describe("chars_roles", () => {
     const { tools } = await registered();
     const result = await tools.get("chars_roles")!.execute({ task: "review the diff" }, toolContext());
 
-    expect(result.metadata?.recommended).toBe("chars-reviewer");
-    expect(result.content!.startsWith("Recommended role: chars-reviewer (matched: review)")).toBe(true);
-    expect(result.content).toContain("chars-planner | subagent |");
+    expect(result.metadata?.recommended).toBe("reviewer");
+    expect(result.content!.startsWith("Recommended role: reviewer (matched: review)")).toBe(true);
+    expect(result.content).toContain("planner | subagent |");
   });
 
   test("recommends the planner for a planning task", async () => {
     const { tools } = await registered();
     const result = await tools.get("chars_roles")!.execute({ task: "plan the migration" }, toolContext());
 
-    expect(result.metadata?.recommended).toBe("chars-planner");
-    expect(result.content!.startsWith("Recommended role: chars-planner (matched: plan)")).toBe(true);
+    expect(result.metadata?.recommended).toBe("planner");
+    expect(result.content!.startsWith("Recommended role: planner (matched: plan)")).toBe(true);
   });
 
   test("omits the recommendation for an empty task", async () => {
@@ -136,7 +136,7 @@ describe("chars_roles", () => {
     const result = await tools.get("chars_roles")!.execute({ task: "   " }, toolContext());
 
     expect(result.metadata?.recommended).toBeNull();
-    expect(result.content!.startsWith("chars | primary |")).toBe(true);
+    expect(result.content!.startsWith("orchestrator | primary |")).toBe(true);
   });
 });
 
@@ -145,15 +145,15 @@ describe("chars_delegate", () => {
     const { tools, calls } = await registered();
     const attempt = tools.get("chars_delegate")!.execute({ role: "chars-ghost", task: "do it" }, toolContext());
 
-    await expect(attempt).rejects.toThrow("Unknown chars role: chars-ghost. Known roles: chars, chars-planner");
+    await expect(attempt).rejects.toThrow("Unknown chars role: chars-ghost. Known roles: orchestrator, planner");
     expect(calls.create).toBeUndefined();
   });
 
   test("rejects a primary role", async () => {
     const { tools, calls } = await registered();
-    const attempt = tools.get("chars_delegate")!.execute({ role: "chars", task: "do it" }, toolContext());
+    const attempt = tools.get("chars_delegate")!.execute({ role: "orchestrator", task: "do it" }, toolContext());
 
-    await expect(attempt).rejects.toThrow("Role chars is a primary role and cannot be delegated.");
+    await expect(attempt).rejects.toThrow("Role orchestrator is a primary role and cannot be delegated.");
     expect(calls.create).toBeUndefined();
   });
 
@@ -162,12 +162,12 @@ describe("chars_delegate", () => {
       session: {
         context: async () => [
           { id: "msg_user", type: "user", content: [{ type: "text", text: "parent request" }] },
-          { id: "msg_old", type: "assistant", agent: "chars-reviewer", content: [{ type: "text", text: "old answer" }] },
+          { id: "msg_old", type: "assistant", agent: "reviewer", content: [{ type: "text", text: "old answer" }] },
           { id: "msg_idle", type: "idle" },
           {
             id: "msg_new",
             type: "assistant",
-            agent: "chars-reviewer",
+            agent: "reviewer",
             content: [
               { type: "reasoning", text: "internal reasoning" },
               { type: "text", text: "Looks good." },
@@ -180,20 +180,20 @@ describe("chars_delegate", () => {
 
     const result = await tools
       .get("chars_delegate")!
-      .execute({ role: "chars-reviewer", task: "review the diff" }, toolContext());
+      .execute({ role: "reviewer", task: "review the diff" }, toolContext());
 
     expect(calls.get?.[0]).toEqual({ sessionID: "ses_parent" });
     expect(calls.create?.[0]).toEqual({
       parentID: "ses_parent",
-      title: "chars-reviewer: review the diff",
-      agent: "chars-reviewer",
+      title: "reviewer: review the diff",
+      agent: "reviewer",
       location: { directory: "/repo" },
     });
     expect(calls.prompt?.[0]).toEqual({ sessionID: "ses_child", text: "review the diff" });
     expect(calls.wait?.[0]).toEqual({ sessionID: "ses_child" });
     expect(calls.context?.[0]).toEqual({ sessionID: "ses_child" });
     expect(result.content).toBe("Looks good.\n\nShip it.");
-    expect(result.metadata).toEqual({ role: "chars-reviewer", sessionID: "ses_child" });
+    expect(result.metadata).toEqual({ role: "reviewer", sessionID: "ses_child" });
   });
 
   test("honours a custom title and falls back when no assistant text exists", async () => {
@@ -205,9 +205,9 @@ describe("chars_delegate", () => {
 
     const result = await tools
       .get("chars_delegate")!
-      .execute({ role: "chars-planner", task: "plan the migration", title: "Migration plan" }, toolContext());
+      .execute({ role: "planner", task: "plan the migration", title: "Migration plan" }, toolContext());
 
-    expect(calls.create?.[0]).toMatchObject({ title: "Migration plan", agent: "chars-planner" });
+    expect(calls.create?.[0]).toMatchObject({ title: "Migration plan", agent: "planner" });
     expect(result.content).toBe("(no assistant text returned)");
   });
 
@@ -223,7 +223,7 @@ describe("chars_delegate", () => {
 
     const attempt = tools
       .get("chars_delegate")!
-      .execute({ role: "chars-reviewer", task: "review the diff" }, toolContext(controller.signal));
+      .execute({ role: "reviewer", task: "review the diff" }, toolContext(controller.signal));
 
     await expect(attempt).rejects.toThrow("chars_delegate aborted");
     expect(calls.interrupt?.[0]).toEqual({ sessionID: "ses_child" });

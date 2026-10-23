@@ -36,22 +36,22 @@ const PORT_MIN = 43000;
 const PORT_MAX = 43999;
 const SERVER_PASSWORD = /server password (\S+)/;
 const ROLE_IDS = [
-  "chars",
-  "chars-planner",
-  "chars-implementer",
-  "chars-reviewer",
-  "chars-researcher",
-  "chars-debugger",
-  "chars-writer",
+  "orchestrator",
+  "planner",
+  "implementer",
+  "reviewer",
+  "researcher",
+  "debugger",
+  "writer",
 ] as const;
 const AGENT_EXPECTATIONS = [
-  { id: "chars", mode: "primary" },
-  { id: "chars-planner", mode: "subagent" },
-  { id: "chars-implementer", mode: "subagent" },
-  { id: "chars-reviewer", mode: "subagent" },
-  { id: "chars-researcher", mode: "subagent" },
-  { id: "chars-debugger", mode: "subagent" },
-  { id: "chars-writer", mode: "subagent" },
+  { id: "orchestrator", mode: "primary" },
+  { id: "planner", mode: "subagent" },
+  { id: "implementer", mode: "subagent" },
+  { id: "reviewer", mode: "subagent" },
+  { id: "researcher", mode: "subagent" },
+  { id: "debugger", mode: "subagent" },
+  { id: "writer", mode: "subagent" },
 ] as const;
 
 function sleep(ms: number): Promise<void> {
@@ -316,18 +316,18 @@ async function checkSkill(server: ServerHandle, auth: string): Promise<Check> {
     }
     const skill = matches.find((entry) => {
       const content = typeof entry.content === "string" ? entry.content : "";
-      return content.includes("chars-planner") && entry.autoinvoke !== false;
+      return content.includes("planner") && entry.autoinvoke !== false;
     });
     if (!skill) {
       const detail = matches
         .map((entry) => {
           const content = typeof entry.content === "string" ? entry.content : "";
-          return `autoinvoke=${String(entry.autoinvoke)}, mentions chars-planner=${content.includes("chars-planner")}`;
+          return `autoinvoke=${String(entry.autoinvoke)}, mentions planner=${content.includes("planner")}`;
         })
         .join("; ");
       return fail(name, detail);
     }
-    return pass(name, `HTTP 200 autoinvoke=${String(skill.autoinvoke)} content mentions chars-planner`);
+    return pass(name, `HTTP 200 autoinvoke=${String(skill.autoinvoke)} content mentions planner`);
   } catch (error) {
     return fail(name, errorMessage(error));
   }

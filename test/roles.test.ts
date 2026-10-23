@@ -18,7 +18,7 @@ describe("role catalog", () => {
   });
 
   test("renders valid agent frontmatter", () => {
-    const markdown = renderAgentMarkdown(getRole("chars-reviewer")!, "anthropic/claude-sonnet-4-5#high");
+    const markdown = renderAgentMarkdown(getRole("reviewer")!, "anthropic/claude-sonnet-4-5#high");
     expect(markdown.startsWith("---\n")).toBe(true);
     expect(markdown).toContain('description: "Independent reviewer.');
     expect(markdown).toContain("mode: subagent");
@@ -42,17 +42,17 @@ describe("role catalog", () => {
 
 describe("routeTask", () => {
   test("routes review work to the reviewer", () => {
-    expect(routeTask("review the diff").role).toBe("chars-reviewer");
-    expect(routeTask("请审查这次改动").role).toBe("chars-reviewer");
+    expect(routeTask("review the diff").role).toBe("reviewer");
+    expect(routeTask("请审查这次改动").role).toBe("reviewer");
   });
 
   test("routes planning work to the planner", () => {
-    expect(routeTask("plan the migration").role).toBe("chars-planner");
-    expect(routeTask("设计一下模块边界").role).toBe("chars-planner");
+    expect(routeTask("plan the migration").role).toBe("planner");
+    expect(routeTask("设计一下模块边界").role).toBe("planner");
   });
 
   test("routes failures to the debugger", () => {
-    expect(routeTask("the build fails with an error").role).toBe("chars-debugger");
+    expect(routeTask("the build fails with an error").role).toBe("debugger");
   });
 
   test("falls back to the orchestrator", () => {

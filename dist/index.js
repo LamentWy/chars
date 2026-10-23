@@ -1,11 +1,11 @@
 // src/types.ts
-var ORCHESTRATOR_ID = "chars";
+var ORCHESTRATOR_ID = "orchestrator";
 var READ_ONLY_ROLE_IDS = [
-  "chars-planner",
-  "chars-reviewer",
-  "chars-researcher"
+  "planner",
+  "reviewer",
+  "researcher"
 ];
-var SHELL_DENIED_ROLE_IDS = ["chars-researcher"];
+var SHELL_DENIED_ROLE_IDS = ["researcher"];
 var SHELL_TOOL_NAMES = ["shell", "bash"];
 var WRITE_TOOL_NAMES = [
   "edit",
@@ -30,22 +30,22 @@ var MARKDOWN_ONLY = [
 ];
 var ROLES = [
   {
-    id: "chars",
-    name: "Chars",
+    id: "orchestrator",
+    name: "Orchestrator",
     mode: "primary",
     color: "#7c9cff",
     steps: 60,
     description: "Orchestrator that divides work across specialist subagents and integrates their results.",
     when: "Any multi-step software task: planning, implementation, debugging, review, research, or documentation.",
-    prompt: `You are chars, the orchestrator of a multi-agent team. Your job is responsibility division, not doing every part yourself.
+    prompt: `You are orchestrator, the orchestrating agent of the chars plugin. Your job is responsibility division, not doing every part yourself.
 
 ## Team
-- chars-planner: read-only investigation and decision-complete plans.
-- chars-implementer: scoped production code changes with their own verification.
-- chars-debugger: reproduce a failure, find the root cause, ship the minimal fix.
-- chars-reviewer: independent review of a diff or design; reports findings, never edits.
-- chars-researcher: repository and web fact-finding with citations; never edits.
-- chars-writer: documentation, README, and prose; edits Markdown only.
+- planner: read-only investigation and decision-complete plans.
+- implementer: scoped production code changes with their own verification.
+- debugger: reproduce a failure, find the root cause, ship the minimal fix.
+- reviewer: independent review of a diff or design; reports findings, never edits.
+- researcher: repository and web fact-finding with citations; never edits.
+- writer: documentation, README, and prose; edits Markdown only.
 
 ## Protocol
 1. Classify the request into independent units before acting.
@@ -61,7 +61,7 @@ var ROLES = [
 - Report outcome, evidence, and remaining risk. Stop when the requested behavior is demonstrated.`
   },
   {
-    id: "chars-planner",
+    id: "planner",
     name: "Chars Planner",
     mode: "subagent",
     color: "#67c9a8",
@@ -69,7 +69,7 @@ var ROLES = [
     permissions: DENY_EDIT,
     description: "Read-only planner. Produces a decision-complete implementation plan with file paths, order, risks, and verification.",
     when: "The task needs architectural decisions, module boundaries, or an ordered multi-file plan before anyone edits code.",
-    prompt: `You are chars-planner, a read-only planning specialist.
+    prompt: `You are planner, a read-only planning specialist.
 
 ## Deliverable
 A decision-complete plan another agent can execute without re-investigating:
@@ -90,7 +90,7 @@ Read anything in the repository. Do NOT create, edit, or delete files. Do NOT ru
 - Stop when the plan is complete enough to execute without questions.`
   },
   {
-    id: "chars-implementer",
+    id: "implementer",
     name: "Chars Implementer",
     mode: "subagent",
     color: "#f0b35a",
@@ -98,7 +98,7 @@ Read anything in the repository. Do NOT create, edit, or delete files. Do NOT ru
     permissions: ALLOW,
     description: "Implements one scoped change end to end, including its tests and verification.",
     when: "A well-defined unit of production code must be written or changed.",
-    prompt: `You are chars-implementer, a focused implementation specialist.
+    prompt: `You are implementer, a focused implementation specialist.
 
 ## Deliverable
 The requested behavior change, minimal and complete, plus the proof that it works:
@@ -118,7 +118,7 @@ Edit only the files named in your brief plus the tests that cover them. Do not r
 - Stop when the requested behavior is demonstrated by a captured run.`
   },
   {
-    id: "chars-reviewer",
+    id: "reviewer",
     name: "Chars Reviewer",
     mode: "subagent",
     color: "#e06c75",
@@ -126,7 +126,7 @@ Edit only the files named in your brief plus the tests that cover them. Do not r
     permissions: DENY_EDIT,
     description: "Independent reviewer. Reports severity-ordered defects with file:line evidence and a PASS/FAIL verdict.",
     when: "A change, plan, or design is ready for an independent correctness and regression review.",
-    prompt: `You are chars-reviewer, an independent reviewer.
+    prompt: `You are reviewer, an independent reviewer.
 
 ## Deliverable
 A review with findings in severity order:
@@ -145,7 +145,7 @@ Read the diff, the affected files, and their tests. You may run tests, builds, a
 - Stop when the verdict is supported by evidence.`
   },
   {
-    id: "chars-researcher",
+    id: "researcher",
     name: "Chars Researcher",
     mode: "subagent",
     color: "#56b6c2",
@@ -153,7 +153,7 @@ Read the diff, the affected files, and their tests. You may run tests, builds, a
     permissions: DENY_WRITE_AND_SHELL,
     description: "Read-only fact finder for repository and web questions, returning cited findings and uncertainties.",
     when: "The team needs facts about the codebase, a library, an API, or external documentation.",
-    prompt: `You are chars-researcher, a read-only research specialist.
+    prompt: `You are researcher, a read-only research specialist.
 
 ## Deliverable
 A compact findings report:
@@ -172,7 +172,7 @@ Read files, search the repository, and fetch web sources. Do NOT edit files and 
 - Stop when the question is answered with citations, or when the missing access is named.`
   },
   {
-    id: "chars-debugger",
+    id: "debugger",
     name: "Chars Debugger",
     mode: "subagent",
     color: "#c678dd",
@@ -180,7 +180,7 @@ Read files, search the repository, and fetch web sources. Do NOT edit files and 
     permissions: ALLOW,
     description: "Reproduces a failure, isolates its root cause, and ships the minimal proven fix.",
     when: "Something is broken, failing, flaky, or behaving unexpectedly and the cause is not already proven.",
-    prompt: `You are chars-debugger, a root-cause specialist.
+    prompt: `You are debugger, a root-cause specialist.
 
 ## Deliverable
 - A reproduction of the failure with its exact command and output.
@@ -199,7 +199,7 @@ Read the failing code and its callers. Edit the smallest set of files needed to 
 - Stop when the reproduction passes and the cause is explained.`
   },
   {
-    id: "chars-writer",
+    id: "writer",
     name: "Chars Writer",
     mode: "subagent",
     color: "#98c379",
@@ -207,7 +207,7 @@ Read the failing code and its callers. Edit the smallest set of files needed to 
     permissions: MARKDOWN_ONLY,
     description: "Writes and updates documentation, README files, and prose with verifiable commands and links.",
     when: "Documentation, a README, release notes, or explanatory prose must be written or corrected.",
-    prompt: `You are chars-writer, a documentation specialist.
+    prompt: `You are writer, a documentation specialist.
 
 ## Deliverable
 The requested prose, shipped in the named files, with:
@@ -275,26 +275,26 @@ ${renderRoleTable()}
 5. Never treat a child's completion message as proof. Evidence is a captured command, test, or endpoint result.
 
 ## Boundaries
-- \`chars-planner\`, \`chars-reviewer\`, and \`chars-researcher\` are read-only.
-- \`chars-writer\` edits Markdown only.
-- \`chars-implementer\`, \`chars-debugger\`, and \`chars\` may edit code.
+- \`planner\`, \`reviewer\`, and \`researcher\` are read-only.
+- \`writer\` edits Markdown only.
+- \`implementer\`, \`debugger\`, and \`orchestrator\` may edit code.
 
 ## Routing shortcuts
-- Unclear approach, multiple files, or architecture choice: \`chars-planner\`.
-- Known change in known files: \`chars-implementer\`.
-- Failure with unknown cause: \`chars-debugger\`.
-- Second opinion before delivery: \`chars-reviewer\`.
-- Unknown library, API, or repository fact: \`chars-researcher\`.
-- README, docs, release notes: \`chars-writer\`.
+- Unclear approach, multiple files, or architecture choice: \`planner\`.
+- Known change in known files: \`implementer\`.
+- Failure with unknown cause: \`debugger\`.
+- Second opinion before delivery: \`reviewer\`.
+- Unknown library, API, or repository fact: \`researcher\`.
+- README, docs, release notes: \`writer\`.
 `;
 }
 var ROUTE_RULES = [
-  { role: "chars-reviewer", keywords: ["review", "audit", "critique", "second opinion", "检查", "评审", "审查"] },
-  { role: "chars-debugger", keywords: ["bug", "debug", "crash", "fails", "failure", "flaky", "regression", "error", "broken", "报错", "调试", "修复"] },
-  { role: "chars-planner", keywords: ["plan", "design", "architecture", "approach", "strategy", "roadmap", "方案", "设计", "规划"] },
-  { role: "chars-researcher", keywords: ["research", "find out", "look up", "documentation", "docs for", "how does", "survey", "调研", "查一下", "资料"] },
-  { role: "chars-writer", keywords: ["readme", "documentation", "docs", "prose", "release notes", "changelog", "文档", "说明"] },
-  { role: "chars-implementer", keywords: ["implement", "add", "build", "create", "feature", "refactor", "实现", "新增", "开发"] }
+  { role: "reviewer", keywords: ["review", "audit", "critique", "second opinion", "检查", "评审", "审查"] },
+  { role: "debugger", keywords: ["bug", "debug", "crash", "fails", "failure", "flaky", "regression", "error", "broken", "报错", "调试", "修复"] },
+  { role: "planner", keywords: ["plan", "design", "architecture", "approach", "strategy", "roadmap", "方案", "设计", "规划"] },
+  { role: "researcher", keywords: ["research", "find out", "look up", "documentation", "docs for", "how does", "survey", "调研", "查一下", "资料"] },
+  { role: "writer", keywords: ["readme", "documentation", "docs", "prose", "release notes", "changelog", "文档", "说明"] },
+  { role: "implementer", keywords: ["implement", "add", "build", "create", "feature", "refactor", "实现", "新增", "开发"] }
 ];
 function routeTask(task) {
   const text = task.toLowerCase();
@@ -322,14 +322,14 @@ async function registerCommands(ctx, input = {}) {
       name: "chars",
       description: "Start or steer a chars orchestration task",
       async execute({ sessionID, prompt, delivery }) {
-        await context.session.switchAgent({ sessionID, agent: "chars" });
+        await context.session.switchAgent({ sessionID, agent: "orchestrator" });
         const text = prompt.text.trim();
         if (text) {
           await context.session.prompt({ sessionID, text, delivery });
         } else {
           await context.session.synthetic({
             sessionID,
-            text: "chars orchestrator active. Ask for a task, or run /chars-roles to see the team.",
+            text: "orchestrator active. Ask for a task, or run /chars-roles to see the team.",
             resume: false
           });
         }
@@ -361,8 +361,8 @@ var POLICY = [
   "## chars orchestration policy",
   "",
   "1. Classify the request before acting: split it into independent units, each with a deliverable, scope, verification, and stop condition.",
-  "2. Delegate each independent unit with the subagent tool using the exact agent id: chars-planner, chars-implementer, chars-debugger, chars-reviewer, chars-researcher, or chars-writer.",
-  "3. Keep integration and final verification in chars: read the real diff and run the real checks yourself.",
+  "2. Delegate each independent unit with the subagent tool using the exact agent id: planner, implementer, debugger, reviewer, researcher, or writer.",
+  "3. Keep integration and final verification in orchestrator: read the real diff and run the real checks yourself.",
   "4. Never treat a child's completion claim as evidence; require the child's captured command, test, or output."
 ].join(`
 `);
@@ -370,7 +370,7 @@ async function registerHooks(ctx, input = {}) {
   const options = input.options ?? {};
   const context = ctx;
   const session = await context.session.hook("context", (event) => {
-    if (event.agent === "chars" && event.system) {
+    if (event.agent === "orchestrator" && event.system) {
       event.system.push({ type: "text", text: POLICY });
     }
   });
@@ -378,10 +378,10 @@ async function registerHooks(ctx, input = {}) {
     if (options.guardReadOnly === false)
       return;
     if (READ_ONLY_ROLE_IDS.includes(event.agent) && WRITE_TOOL_NAMES.includes(event.tool)) {
-      throw new Error(`Role ${event.agent} is read-only; route edits to chars-implementer.`);
+      throw new Error(`Role ${event.agent} is read-only; route edits to implementer.`);
     }
     if (SHELL_DENIED_ROLE_IDS.includes(event.agent) && SHELL_TOOL_NAMES.includes(event.tool)) {
-      throw new Error(`Role ${event.agent} may not run shell commands; route execution to chars-implementer.`);
+      throw new Error(`Role ${event.agent} may not run shell commands; route execution to implementer.`);
     }
   });
   return {
